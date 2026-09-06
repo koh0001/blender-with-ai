@@ -2,6 +2,8 @@
 import sys
 import queue
 import threading
+import types
+import unicodedata
 from pathlib import Path
 import bpy
 
@@ -22,6 +24,17 @@ class FakeRuntime:
         pass
 
 addon.register()
+# Examples only seed the composer; they must never connect or execute.
+count_before = len(bpy.data.objects)
+assert bpy.ops.twin.seed_prompt(prompt='원점에 큐브를 만들어줘.') == {'FINISHED'}
+assert bpy.context.window_manager.twin_prompt == '원점에 큐브를 만들어줘.'
+assert addon._runtime is None and not addon._busy
+assert len(bpy.data.objects) == count_before
+# Korean, English and long unbroken names fit bounded native labels.
+text = '긴이름' * 15 + ' mixed English request for selected objects'
+lines = addon.wrapped_lines(text, 24)
+assert ''.join(lines).replace(' ', '') == text.replace(' ', '')
+assert all(sum(2 if unicodedata.east_asian_width(c) in ('W', 'F') else 1 for c in line) <= 24 for line in lines)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 r = FakeRuntime()
@@ -43,6 +56,17 @@ assert addon._busy, 'response must not release busy before action_done'
 assert bpy.data.objects.get('ChatCube') is not None
 assert len(bpy.context.window_manager.twin_chat) == 2
 assert '실제 실행 결과' in bpy.context.window_manager.twin_chat[-1].content
+assert bpy.context.window_manager.twin_chat[-1].outcome == 'APPLIED'
+assert bpy.context.window_manager.twin_chat[-1].result
+assert bpy.context.window_manager.twin_chat[-1].body == '큐브 생성 요청'
+assert addon._status_kind == 'SUCCESS'
+# Explicit copy uses the complete displayed reply without touching the OS clipboard.
+wm = bpy.context.window_manager
+proxy_wm = types.SimpleNamespace(twin_chat=wm.twin_chat, twin_chat_index=wm.twin_chat_index, clipboard='')
+proxy_context = types.SimpleNamespace(window_manager=proxy_wm)
+operator = types.SimpleNamespace(report=lambda *args: None)
+assert addon.TWIN_OT_copy_reply.execute(operator, proxy_context) == {'FINISHED'}
+assert proxy_wm.clipboard == addon.message_text(wm.twin_chat[-1])
 r.events.put({'type':'action_done'})
 addon.poll_events()
 assert not addon._busy
@@ -64,6 +88,9 @@ r.events.put({'type':'action_done'})
 addon.poll_events()
 assert bpy.data.objects['ChatCube'].location.x == 5
 assert '실제 실행 실패' in bpy.context.window_manager.twin_chat[-1].content
+assert bpy.context.window_manager.twin_chat[-1].outcome == 'FAILED'
+assert bpy.context.window_manager.twin_prompt == 'Move again'
+assert addon._status_kind == 'ERROR'
 # Cancel after response was queued must still prevent execution.
 bpy.context.window_manager.twin_prompt = 'Move again'
 bpy.ops.twin.propose()
@@ -76,6 +103,11 @@ assert bpy.data.objects['ChatCube'].location.x == 5
 bpy.ops.twin.new_chat()
 assert not bpy.context.window_manager.twin_chat
 assert bpy.data.objects['ChatCube'].location.x == 5
+# A dialog may outlive conversation reset in another window; it must draw safely.
+labels = []
+closed_dialog = types.SimpleNamespace(layout=types.SimpleNamespace(label=lambda **kw: labels.append(kw['text'])))
+addon.TWIN_OT_view_reply.draw(closed_dialog, bpy.context)
+assert labels == ['대화가 종료되었습니다']
 # Pure chat works while objects are selected, without sending those objects.
 r._cancel.clear()
 scene.twin_chat_selection = False

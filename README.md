@@ -4,6 +4,12 @@ Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3
 
 공통 애드온의 채팅·AI 연결·장면 조작 기반을 먼저 완성합니다. 산업별 기능은 이 저장소를 포크하거나 클론한 별도 프로젝트에서 확장할 수 있습니다.
 
+## 작업 화면
+
+![Blender with AI 대화 패널](docs/images/chat-panel.png)
+
+실제 Blender에서 합성 장면과 데모 대화로 촬영한 화면입니다. 연결 설정은 접어두고, 선택 객체와 실제 실행 결과를 보며 후속 작업을 요청할 수 있습니다. 예시 버튼은 요청문만 채우며, **보내기**를 눌러야 실행합니다. 긴 답변은 자세히 보기와 복사를 지원합니다.
+
 ## 현재 작업 범위
 
 - Blender의 **AI** 사이드바에서 채팅, 대화 기록, 요청 취소, 새 대화
@@ -25,7 +31,7 @@ Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3
 ## 설치와 첫 사용
 
 1. Windows 또는 macOS에 Blender 4.2 이상을 준비합니다. 계정 로그인 방식은 Codex CLI 또는 Claude Code도 필요합니다. API 키 방식에는 해당 CLI가 필요하지 않습니다. 검증 환경은 `VALIDATION.md`를 참고하세요.
-2. `python3 scripts/package.py`로 `dist/blender-with-ai-0.1.0.zip`을 만듭니다.
+2. [Releases](https://github.com/koh0001/blender-with-ai/releases)에서 설치 ZIP을 내려받습니다. 직접 빌드하려면 `python3 scripts/package.py`를 실행하면 `dist/blender-with-ai-0.1.0.zip`이 생성됩니다.
 3. Blender → Edit → Preferences → Get Extensions → Install from Disk에서 ZIP을 선택합니다.
 4. 3D View에서 `N` 키 → **AI** 탭을 엽니다.
 5. 연결 방식을 선택하고 **연결 확인**을 누릅니다. 계정 방식은 기존 CLI 로그인 세션을 재사용하며, 필요한 경우 **로그인**으로 공식 인증 절차를 시작합니다. API 방식은 키를 입력합니다.

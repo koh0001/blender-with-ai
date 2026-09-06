@@ -6,7 +6,8 @@ Environment: Blender 5.2.1 LTS, Codex CLI 0.153.4, Claude Code 2.1.263.
 
 - Offline Python tests cover command validation, Codex protocol, Claude CLI transport, OpenAI/Anthropic API contracts, cancellation and Windows launcher layouts.
 - `blender_actions_smoke.py`: all five primitives; move, rotate, scale, rename; stale or locked object rejection; rollback after injected mid-batch failure.
-- `blender_chat_smoke.py`: UI registration, model selection, chat create and follow-up move, actual result history, stale scene/collection rejection, cancellation of a queued result, pure chat, provider switching and cleanup.
+- `blender_chat_smoke.py`: UI registration, model selection, chat create and follow-up move, actual result history, stale scene/collection rejection, cancellation of a queued result, pure chat, provider switching and cleanup. Designer UI checks also cover seed buttons that do not execute, CJK wrapping, separate execution feedback, complete reply copying through a fake clipboard, failed-input preservation and stale detail viewers.
+- Actual macOS Blender GUI was visually inspected at the default sidebar width: empty state, connected chat, selected-object context and expanded reply. The README screenshot uses a synthetic scene and demo conversation.
 - Uncompressed saved `.blend` was inspected: distinctive chat, prompt and API-key test values were absent. These values use WindowManager session state, not Scene custom properties.
 - Separate factory-startup GUI process: a timer-triggered chat operator created an object; Blender Undo removed it.
 - `blender_smoke.py`: legacy metadata regression checks remain passing.

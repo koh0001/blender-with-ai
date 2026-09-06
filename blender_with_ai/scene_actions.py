@@ -98,9 +98,13 @@ def apply_actions(context, commands, snapshots):
                     obj.name = cmd["name"]
                     if obj.name != cmd["name"]:
                         raise ValueError("요청한 이름을 사용할 수 없습니다.")
-                results.append(f"create {cmd['primitive']}: {obj.name} at {list(obj.location)}")
+                shape = {"CUBE": "큐브", "UV_SPHERE": "구", "CYLINDER": "원기둥",
+                         "PLANE": "평면", "CONE": "원뿔"}[cmd["primitive"]]
+                location = ", ".join(f"{axis} {value:.6g}" for axis, value in zip("XYZ", obj.location))
+                results.append(f"생성 · {shape} {obj.name}: 위치 {location}")
             else:
                 obj = snapshots[cmd["target"]]["object"]
+                previous_name = obj.name
                 if op == "rename":
                     obj.name = cmd["name"]
                 elif op == "move":
@@ -109,8 +113,16 @@ def apply_actions(context, commands, snapshots):
                     obj.rotation_euler = [a + math.radians(b) for a, b in zip(obj.rotation_euler, cmd["vector"])]
                 elif op == "scale":
                     obj.scale = [a * b for a, b in zip(obj.scale, cmd["vector"])]
-                detail = obj.name if op == "rename" else str(cmd["vector"])
-                results.append(f"{op} {cmd['target']}: {detail}")
+                if op == "rename":
+                    results.append(f"이름 변경 · {previous_name} → {obj.name}")
+                else:
+                    label = {"move": "이동", "rotate": "회전", "scale": "크기"}[op]
+                    if op == "scale":
+                        detail = ", ".join(f"{axis} {value * 100:.6g}%" for axis, value in zip("XYZ", cmd["vector"]))
+                    else:
+                        unit = "°" if op == "rotate" else ""
+                        detail = ", ".join(f"{axis} {value:+.6g}{unit}" for axis, value in zip("XYZ", cmd["vector"]))
+                    results.append(f"{label} · {obj.name}: {detail}")
         if created:
             for obj in context.selected_objects:
                 obj.select_set(False)
