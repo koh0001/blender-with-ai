@@ -12,7 +12,6 @@ import bpy
 from bpy.props import StringProperty, PointerProperty, CollectionProperty, IntProperty, BoolProperty, EnumProperty
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
-from .metadata import validate_fields, validate_proposal, build_export, parse_csv, suggest_by_name
 from .runtime import CodexRuntime, MAX_HISTORY, validate_history
 from .scene_actions import snapshot, apply_actions
 from .api_runtime import APIRuntime
