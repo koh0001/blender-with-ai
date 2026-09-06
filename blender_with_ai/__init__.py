@@ -364,6 +364,18 @@ class TWIN_OT_disconnect(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class TWIN_OT_open_provider_docs(bpy.types.Operator):
+    bl_idname = "twin.open_provider_docs"
+    bl_label = "설치 안내 열기"
+    provider: StringProperty(options={'SKIP_SAVE'})
+
+    def execute(self, context):
+        url = ('https://developers.openai.com/codex/cli/' if self.provider == 'CODEX'
+               else 'https://docs.anthropic.com/en/docs/claude-code/overview')
+        webbrowser.open(url)
+        return {'FINISHED'}
+
+
 class TWIN_OT_init_ids(bpy.types.Operator):
     bl_idname = "twin.init_ids"
     bl_label = "선택 객체 ID 부여"
@@ -692,6 +704,19 @@ class TWIN_PT_panel(bpy.types.Panel):
                 draw_text(box, "키를 비우면 " + env_name + " 환경 변수를 사용합니다.", columns, 3)
             elif not _account:
                 draw_text(box, '기존 CLI 계정을 연결하거나 공식 로그인으로 시작하세요.', columns, 3)
+                if wm.twin_provider in ('CODEX', 'CLAUDE_LOGIN'):
+                    try:
+                        available = bool(discover_codex(context) if wm.twin_provider == 'CODEX' else claude_path(context))
+                    except (ValueError, OSError):
+                        available = False
+                    if not available:
+                        box.alert = True
+                        label = 'Codex CLI가 없습니다.' if wm.twin_provider == 'CODEX' else 'Claude Code CLI가 없습니다.'
+                        box.label(text=label, icon='ERROR')
+                        box.operator('twin.open_provider_docs', text='공식 설치 안내', icon='URL').provider = wm.twin_provider
+                        draw_text(box, '설치 후 Blender를 재시작하고 연결 확인을 누르세요.', columns, 2)
+                else:
+                    draw_text(box, 'API 키 방식은 CLI 설치 없이 사용할 수 있습니다.', columns, 2)
             row = box.row(align=True)
             row.scale_y = 1.15
             row.operator('twin.connect', text='연결 확인', icon='LINKED')
@@ -869,7 +894,7 @@ def on_load(_):
 CLASSES = (TwinPreferences, TwinChatItem, TWIN_UL_chat, TWIN_OT_connect, TWIN_OT_login,
            TWIN_OT_disconnect, TWIN_OT_propose, TWIN_OT_cancel_chat, TWIN_OT_new_chat,
            TWIN_OT_execute_chat, TWIN_OT_seed_prompt, TWIN_OT_copy_reply, TWIN_OT_view_reply,
-           TWIN_PT_panel)
+           TWIN_OT_open_provider_docs, TWIN_PT_panel)
 
 
 def register():
