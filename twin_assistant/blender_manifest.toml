@@ -1,0 +1,13 @@
+schema_version = "1.0.0"
+id = "twin_assistant"
+version = "0.1.0"
+name = "Blender GPT Assistant"
+tagline = "Control Blender objects through GPT and Claude chat"
+maintainer = "Twin Metadata Assistant contributors"
+type = "add-on"
+blender_version_min = "4.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+tags = ["Object"]
+[permissions]
+network = "Send chat and selected object transforms to an AI provider"
+files = "Run local AI clients and read or export optional metadata files"

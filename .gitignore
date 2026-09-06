@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+dist/
+test-output/
+*.blend1
+*.blend2
+.env
+.env.*
+auth.json
+.omc/
+.claude/
+.codex/
+*.log

@@ -1,0 +1,44 @@
+name: Tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  unit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/package.py
+  blender-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download official Blender 4.2 minimum-version build
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP 'blender.zip'
+          Invoke-WebRequest 'https://download.blender.org/release/Blender4.2/blender-4.2.0-windows-x64.zip' -OutFile $zip
+          Expand-Archive $zip -DestinationPath $env:RUNNER_TEMP
+          Join-Path $env:RUNNER_TEMP 'blender-4.2.0-windows-x64' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Real Blender scene and chat integration
+        shell: pwsh
+        run: |
+          blender --background --factory-startup --python-exit-code 1 --python scripts/blender_actions_smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          blender --background --factory-startup --python-exit-code 1 --python scripts/blender_chat_smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          blender --background --factory-startup --python-exit-code 1 --python scripts/blender_smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - run: python scripts/package.py
+      - name: Validate installable extension
+        shell: pwsh
+        run: python scripts/install_smoke.py --blender blender
