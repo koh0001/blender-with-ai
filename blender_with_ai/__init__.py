@@ -760,7 +760,9 @@ class TWIN_PT_panel(bpy.types.Panel):
         if wm.twin_chat:
             title.label(text=f'{len(wm.twin_chat) // 2} / 10')
             title.operator('twin.new_chat', text='', icon='ADD')
-            layout.template_list('TWIN_UL_chat', '', wm, 'twin_chat', wm, 'twin_chat_index', rows=3, maxrows=3)
+            # Keep several recent turns visible so the panel reads like a
+            # conversation instead of a single inspector row.
+            layout.template_list('TWIN_UL_chat', '', wm, 'twin_chat', wm, 'twin_chat_index', rows=5, maxrows=5)
             item = selected_message(context)
             box = layout.box()
             top = box.row(align=True)
