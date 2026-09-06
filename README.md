@@ -1,81 +1,57 @@
 # Blender with AI
 
-Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3.0-or-later 오픈소스 애드온입니다. **채팅 → Blender 작업 실행 → 결과 확인**이 첫 개발 목표입니다.
+Blender add-on for chatting with GPT or Claude and applying safe, basic scene edits from inside Blender. The workflow is **chat → validate → execute → review**.
 
-공통 애드온의 채팅·AI 연결·장면 조작 기반을 먼저 완성합니다. 산업별 기능은 이 저장소를 포크하거나 클론한 별도 프로젝트에서 확장할 수 있습니다.
+![Blender with AI chat panel](docs/images/chat-panel.png)
 
-## 작업 화면
+The screenshot shows a synthetic demo scene. The add-on keeps the current selection and execution result visible while you continue the conversation.
 
-![Blender with AI 대화 패널](docs/images/chat-panel.png)
+## Features
 
-실제 Blender에서 합성 장면과 데모 대화로 촬영한 화면입니다. 연결 설정은 접어두고, 선택 객체와 실제 실행 결과를 보며 후속 작업을 요청할 수 있습니다. 예시 버튼은 요청문만 채우며, **보내기**를 눌러야 실행합니다. 긴 답변은 자세히 보기와 복사를 지원합니다.
+- ChatGPT/Codex login, Claude Code login, OpenAI API, and Anthropic API
+- Create cubes, spheres, cylinders, planes, and cones
+- Move, rotate, scale, and rename selected objects
+- Continuous context: previous requests and execution results are sent with follow-up requests
+- Duplicate creation names automatically receive suffixes such as `.001`
+- Temporary Object Mode switching from sculpt/paint modes, with mode restoration
+- Strict validation, stale-scene checks, rollback, cancellation, and Blender Undo
+- Windows and macOS support; no arbitrary model-generated Python or shell execution
 
-## 현재 작업 범위
+## Quick start
 
-- Blender의 **AI** 사이드바에서 채팅, 대화 기록, 요청 취소, 새 대화
-- ChatGPT·Claude 계정 로그인 또는 OpenAI·Anthropic API 키 연결
-- 큐브·구·원기둥·평면·원뿔 생성
-- 선택 객체 이동, 회전, 크기 변경, 이름 변경
-- Blender 메인 스레드에서 허용된 작업 실행 및 실행 결과 표시
-- Blender 실행 취소로 작업 되돌리기
-- 최근 요청과 AI 답변을 다음 요청에 함께 전달하는 연속 대화
+1. Download the latest ZIP from [GitHub Releases](https://github.com/koh0001/blender-with-ai/releases).
+2. In Blender 4.2 or later, open `Edit → Preferences → Get Extensions → Install from Disk` and select the ZIP.
+3. Restart Blender, move the mouse over the 3D Viewport, press `N`, and open the **AI** tab.
+4. Choose a provider, click **Check Connection**, select a model, and send a request.
 
-예시 요청:
+Example requests:
 
-- “원점에 큐브 하나 만들어줘.”
-- “선택한 객체를 X축으로 2만큼 옮겨줘.”
-- “Z축으로 45도 회전해줘.”
-- “크기를 두 배로 하고 이름을 Sample로 바꿔줘.”
-
-응답의 작업 명령을 검증한 뒤 실행합니다. 이동은 객체의 로컬 위치에 더하고, 회전은 XYZ 오일러 각도, 크기 변경은 배율로 처리합니다. 지원하지 않는 작업은 대화로 설명하며 임의 Python을 실행하지 않습니다. 스컬프트·페인트 모드에서도 지원되는 오브젝트 작업은 잠시 오브젝트 모드로 전환해 실행한 뒤 원래 모드로 돌아옵니다.
-
-대화는 한 번의 요청으로 끝나지 않습니다. 이전 사용자 요청, AI 답변, 실제 실행 결과가 다음 요청에 전달되므로 “방금 만든 큐브를 X축으로 옮겨줘”처럼 이어서 요청할 수 있습니다. 후속 장면 작업에서는 **선택 객체 함께 보내기**를 켜 두면 현재 선택 상태가 대화 기록보다 우선하는 최신 장면 정보로 전달됩니다. 대화는 세션당 최대 10회이며, 새 대화 버튼으로 초기화할 수 있습니다.
-
-## 설치와 첫 사용
-
-1. Windows 또는 macOS에 Blender 4.2 이상을 준비합니다. 계정 로그인 방식은 Codex CLI 또는 Claude Code도 필요합니다. API 키 방식에는 해당 CLI가 필요하지 않습니다. 검증 환경은 `VALIDATION.md`를 참고하세요.
-2. [Releases](https://github.com/koh0001/blender-with-ai/releases)에서 설치 ZIP을 내려받습니다. 직접 빌드하려면 `python3 scripts/package.py`를 실행하면 `dist/blender-with-ai-0.1.0.zip`이 생성됩니다.
-3. Blender → Edit → Preferences → Get Extensions → Install from Disk에서 ZIP을 선택합니다.
-4. 3D View에서 `N` 키 → **AI** 탭을 엽니다.
-5. 연결 방식을 선택하고 **연결 확인**을 누릅니다. 계정 방식은 기존 CLI 로그인 세션을 재사용하며, 필요한 경우 **로그인**으로 공식 인증 절차를 시작합니다. API 방식은 키를 입력합니다.
-6. 조회된 모델을 선택하고 요청을 전송합니다. 기존 객체를 수정할 때는 해당 객체를 선택합니다.
-7. 실행 결과를 확인합니다. 작업은 Ctrl+Z로 되돌릴 수 있습니다.
-
-CLI를 찾지 못하면 애드온 Preferences에서 Codex 또는 Claude 실행 파일의 절대 경로를 지정하세요. Windows의 npm Codex 설치는 `codex.cmd`에서 실제 네이티브 실행 파일을 찾습니다. Claude Code는 네이티브 설치를 사용하세요. **연결 닫기**는 애드온의 연결을 종료하며 공용 CLI 계정을 로그아웃시키지 않습니다.
-
-대화 기록은 실행 세션에서만 유지하며 `.blend`에 저장하지 않습니다. AI에는 사용자의 요청과 최근 대화, 작업에 필요한 선택 객체의 이름·유형·변환값을 전달합니다. 형상 전체·텍스처·전체 `.blend` 파일은 보내지 않습니다. 애드온은 비밀번호나 인증 토큰을 저장하지 않습니다.
-
-## 연결 방식
-
-| 방식 | 준비 사항 | 이용 기준 |
-|---|---|---|
-| ChatGPT 로그인 | Codex CLI와 ChatGPT 로그인 | 계정의 Codex 이용 권한·한도 |
-| Claude 로그인 | Claude Code와 Claude 로그인 | 계정의 Claude Code 이용 권한·한도 |
-| OpenAI API | OpenAI API 키 | OpenAI API 별도 과금 |
-| Claude API | Anthropic API 키 | Anthropic API 별도 과금 |
-
-API 키 입력을 비우면 해당 환경 변수 `OPENAI_API_KEY` 또는 `ANTHROPIC_API_KEY`를 사용할 수 있습니다. 입력한 키는 현재 Blender 세션의 메모리에만 두며 연결 방식 변경·연결 종료 시 지웁니다. API 키를 `.blend` 또는 Blender 설정에 저장하지 않습니다. 계정 로그인 방식은 환경 변수의 API 키를 자동으로 사용하지 않습니다.
-
-Claude 계정 방식의 모델 목록은 CLI 별칭이며 계정별 이용 가능 모델을 조회한 결과는 아닙니다. 실제 이용 가능 여부는 요청 시 확인됩니다.
-
-애드온은 무료이지만 AI 사용 권한과 과금은 선택한 제공자의 조건을 따릅니다. OpenAI, Anthropic 또는 Blender의 공식 애드온은 아닙니다.
-
-메타데이터 기능은 기본 애드온에서 제외했습니다. 프로젝트별 메타데이터는 이 저장소를 기반으로 별도 확장 애드온에서 구현할 수 있습니다.
-
-## 개발·검증
-
-```sh
-python3 -m unittest discover -s tests -v
-/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python scripts/blender_smoke.py
-python3 scripts/package.py
+```text
+Create a cube at the origin
+Move the cube you just created 2 units on X
+Rotate the selected object 45 degrees around Z
+Double its size and rename it Sample
 ```
 
-확인된 동작과 미검증 범위는 [VALIDATION.md](VALIDATION.md)를 참고하세요.
+Keep **Include selected objects** enabled for follow-up scene edits. Use `Ctrl+Z` to undo. The session keeps up to ten exchanges.
 
-## 라이선스
+## Providers
 
-Copyright (c) 2026 Blender with AI contributors.
+| Provider | Requirement | Billing |
+| --- | --- | --- |
+| ChatGPT login | Codex CLI and ChatGPT login | Your Codex plan |
+| Claude login | Claude Code and Claude login | Your Claude plan |
+| OpenAI API | OpenAI API key | OpenAI API billing |
+| Anthropic API | Anthropic API key | Anthropic API billing |
 
-이 프로그램은 **GNU General Public License version 3 또는 그 이후 버전(GPL-3.0-or-later)**에 따라 배포합니다. 전문은 [LICENSE](LICENSE), 이전 프로토타입의 저작권 고지는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)를 확인하세요. 어떠한 보증도 제공하지 않습니다.
+CLI login is optional when using an API key. Keys remain in Blender session memory only and are cleared when the connection is closed or the provider changes. If a CLI is missing, the connection panel provides an official installation link.
 
-개발에 참여할 때는 [AGENTS.md](AGENTS.md)와 [CLAUDE.md](CLAUDE.md)를 참고하세요.
+## Documentation
+
+See the [multilingual usage guide](docs/USAGE.md) for 한국어, English, 日本語, and 简体中文 instructions. Development and verification details are in [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and [VALIDATION.md](VALIDATION.md).
+
+## Scope and license
+
+The base add-on focuses on safe primitive creation and selected-object transforms. Metadata workflows are reserved for downstream custom extensions.
+
+Distributed under **GPL-3.0-or-later**. See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This project is independent and is not an official Blender, OpenAI, or Anthropic product.
