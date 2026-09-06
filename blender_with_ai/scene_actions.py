@@ -22,6 +22,18 @@ def snapshot(context):
     return records, snapshots
 
 
+def _available_create_name(requested, reserved):
+    """Return a Blender-style unique name for a newly created object."""
+    if not requested or requested not in reserved:
+        return requested
+    index = 1
+    while True:
+        candidate = f"{requested.rsplit('.', 1)[0]}.{index:03d}"
+        if candidate not in reserved:
+            return candidate
+        index += 1
+
+
 def apply_actions(context, commands, snapshots):
     _, commands = validate_response({"message": "", "actions": commands},
                                     [{"object_name": name} for name in snapshots])
@@ -72,9 +84,12 @@ def apply_actions(context, commands, snapshots):
     reserved = set(bpy.data.objects.keys())
     for cmd in commands:
         op, name = cmd["operation"], cmd["name"]
-        if op in ("create", "rename") and name:
-            if name in reserved and not (op == "rename" and name == cmd["target"]):
-                raise ValueError("중복된 오브젝트 이름입니다.")
+        if op == "create" and name:
+            cmd["name"] = _available_create_name(name, reserved)
+            reserved.add(cmd["name"])
+        elif op == "rename" and name:
+            if name in reserved and name != cmd["target"]:
+                raise ValueError("이미 존재하는 오브젝트 이름입니다.")
             reserved.add(name)
         if op in ("move", "rotate", "scale"):
             axis = {"move": 0, "rotate": 1, "scale": 2}[op]
