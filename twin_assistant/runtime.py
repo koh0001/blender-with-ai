@@ -421,7 +421,12 @@ class CodexRuntime:
         if process:
             for stream in (process.stdin, process.stdout):
                 if stream:
-                    stream.close()
+                    try:
+                        stream.close()
+                    except OSError:
+                        # A dead Windows pipe may fail while flushing buffered input.
+                        # Still close the other stream and remove the workspace.
+                        pass
         if self._workspace:
             self._workspace.cleanup()
             self._workspace = None

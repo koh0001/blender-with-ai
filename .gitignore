@@ -13,3 +13,13 @@ auth.json
 .claude/
 .codex/
 *.log
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.blend
+*.blend[0-9]
+HANDOFF.md
+MEETING.md
+.credentials.json
+.claude.json
