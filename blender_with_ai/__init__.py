@@ -35,6 +35,21 @@ _status_kind = "IDLE"
 _busy_started = 0.0
 
 
+def ui(english, korean):
+    """Use Korean only when Blender's interface language is Korean."""
+    locale = getattr(bpy.app.translations, 'locale', '')
+    return korean if locale.lower().startswith('ko') else english
+
+
+def provider_items(_self, _context):
+    return [
+        ('CODEX', ui('ChatGPT account (Codex)', 'ChatGPT 계정 (Codex)'), ui('Use a local Codex login', '로컬 Codex 로그인 사용')),
+        ('CLAUDE_LOGIN', ui('Claude account (Claude Code)', 'Claude 계정 (Claude Code)'), ui('Use an official Claude Code account login', 'Claude Code 공식 계정 로그인')),
+        ('OPENAI_API', 'OpenAI API', ui('Connect with an OpenAI API key', 'OpenAI API 키로 연결')),
+        ('ANTHROPIC_API', 'Claude API', ui('Connect with an Anthropic API key', 'Anthropic API 키로 연결')),
+    ]
+
+
 def metadata(obj):
     value = obj.get(KEY)
     if value is None:
@@ -87,10 +102,10 @@ class TwinPreferences(bpy.types.AddonPreferences):
     claude_path: StringProperty(name="Claude 실행 파일", subtype="FILE_PATH", default="")
 
     def draw(self, context):
-        self.layout.prop(self, "codex_path")
-        self.layout.prop(self, "claude_path")
-        self.layout.label(text="비우면 PATH 또는 기본 설치 위치에서 찾습니다")
-        self.layout.label(text="API 키·로그인 토큰을 이 애드온에 저장하지 않습니다")
+        self.layout.prop(self, "codex_path", text=ui('Codex executable', 'Codex 실행 파일'))
+        self.layout.prop(self, "claude_path", text=ui('Claude executable', 'Claude 실행 파일'))
+        self.layout.label(text=ui('Leave empty to search PATH and default install locations.', '비우면 PATH 또는 기본 설치 위치에서 찾습니다'))
+        self.layout.label(text=ui('API keys and login tokens are not stored by this add-on.', 'API 키·로그인 토큰을 이 애드온에 저장하지 않습니다'))
 
 
 class TwinPreviewItem(bpy.types.PropertyGroup):
@@ -684,14 +699,14 @@ class TWIN_PT_panel(bpy.types.Panel):
         layout.use_property_decorate = False
 
         header = layout.row(align=True)
-        header.label(text=assistant_name(context) + (' · 연결됨' if _account else ' · 연결 전'),
+        header.label(text=assistant_name(context) + (ui(' · Connected', ' · 연결됨') if _account else ui(' · Not connected', ' · 연결 전')),
                      icon='CHECKMARK' if _account else 'WORLD')
         header.prop(wm, 'twin_show_connection', text='', icon='PREFERENCES', emboss=False)
         if not _account or wm.twin_show_connection:
             box = layout.box()
-            box.label(text="AI 연결", icon='WORLD')
+            box.label(text=ui('AI connection', 'AI 연결'), icon='WORLD')
             if _account:
-                box.label(text=f"{assistant_name(context)} 로그인됨 · 연결 확인 완료", icon='CHECKMARK')
+                box.label(text=ui(f"{assistant_name(context)} signed in · connection verified", f"{assistant_name(context)} 로그인됨 · 연결 확인 완료"), icon='CHECKMARK')
             controls = box.column()
             controls.enabled = not _busy
             controls.prop(wm, 'twin_provider', text='')
@@ -699,11 +714,11 @@ class TWIN_PT_panel(bpy.types.Panel):
                 key_row = controls.row()
                 key_row.enabled = _runtime is None
                 key_row.prop(wm, 'twin_api_key')
-                draw_text(box, "API 사용료는 공급자에 별도 청구됩니다. 키는 현재 세션에서만 사용합니다.", columns, 4)
+                draw_text(box, ui('API usage is billed by the provider. The key is used only for this session.', 'API 사용료는 공급자에 별도 청구됩니다. 키는 현재 세션에서만 사용합니다.'), columns, 4)
                 env_name = 'OPENAI_API_KEY' if wm.twin_provider == 'OPENAI_API' else 'ANTHROPIC_API_KEY'
-                draw_text(box, "키를 비우면 " + env_name + " 환경 변수를 사용합니다.", columns, 3)
+                draw_text(box, ui('Leave blank to use the ' + env_name + ' environment variable.', '키를 비우면 ' + env_name + ' 환경 변수를 사용합니다.'), columns, 3)
             elif not _account:
-                draw_text(box, '기존 CLI 계정을 연결하거나 공식 로그인으로 시작하세요.', columns, 3)
+                draw_text(box, ui('Connect an existing CLI account or start the official sign-in flow.', '기존 CLI 계정을 연결하거나 공식 로그인으로 시작하세요.'), columns, 3)
                 if wm.twin_provider in ('CODEX', 'CLAUDE_LOGIN'):
                     try:
                         available = bool(discover_codex(context) if wm.twin_provider == 'CODEX' else claude_path(context))
@@ -711,52 +726,52 @@ class TWIN_PT_panel(bpy.types.Panel):
                         available = False
                     if not available:
                         box.alert = True
-                        label = 'Codex CLI가 없습니다.' if wm.twin_provider == 'CODEX' else 'Claude Code CLI가 없습니다.'
+                        label = ui('Codex CLI was not found.', 'Codex CLI가 없습니다.') if wm.twin_provider == 'CODEX' else ui('Claude Code CLI was not found.', 'Claude Code CLI가 없습니다.')
                         box.label(text=label, icon='ERROR')
-                        box.operator('twin.open_provider_docs', text='공식 설치 안내', icon='URL').provider = wm.twin_provider
-                        draw_text(box, '설치 후 Blender를 재시작하고 연결 확인을 누르세요.', columns, 2)
+                        box.operator('twin.open_provider_docs', text=ui('Official installation guide', '공식 설치 안내'), icon='URL').provider = wm.twin_provider
+                        draw_text(box, ui('Install it, restart Blender, then check the connection.', '설치 후 Blender를 재시작하고 연결 확인을 누르세요.'), columns, 2)
                 else:
-                    draw_text(box, 'API 키 방식은 CLI 설치 없이 사용할 수 있습니다.', columns, 2)
+                    draw_text(box, ui('API key providers work without a CLI installation.', 'API 키 방식은 CLI 설치 없이 사용할 수 있습니다.'), columns, 2)
             row = box.row(align=True)
             row.scale_y = 1.15
-            row.operator('twin.connect', text='연결 확인', icon='LINKED')
+            row.operator('twin.connect', text=ui('Check connection', '연결 확인'), icon='LINKED')
             if wm.twin_provider in ('CODEX', 'CLAUDE_LOGIN'):
-                row.operator('twin.login', text='로그인', icon='USER')
+                row.operator('twin.login', text=ui('Sign in', '로그인'), icon='USER')
             if _runtime:
-                box.operator('twin.disconnect', text='연결 닫기', icon='UNLINKED')
+                box.operator('twin.disconnect', text=ui('Disconnect', '연결 닫기'), icon='UNLINKED')
             if _account:
                 model_row = box.row()
                 model_row.enabled = not _busy
                 model_row.prop(scene, 'twin_model')
                 if wm.twin_provider == 'CLAUDE_LOGIN':
-                    draw_text(box, 'CLI 모델 별칭 · 사용 가능 여부는 요청 시 확인합니다.', columns, 3)
+                    draw_text(box, ui('CLI model alias · availability is checked when requested.', 'CLI 모델 별칭 · 사용 가능 여부는 요청 시 확인합니다.'), columns, 3)
         elif _models:
             row = layout.row()
             row.enabled = not _busy
-            row.prop(scene, 'twin_model', text='모델')
+            row.prop(scene, 'twin_model', text=ui('Model', '모델'))
 
         if _busy:
             box = layout.box()
             elapsed = max(0, int(time.monotonic() - _busy_started)) if _busy_started else 0
-            title = '취소하는 중' if _status_kind == 'CANCELLING' else ('답변을 기다리는 중' if _request_context else '연결 확인 중')
-            box.label(text=f'{title} · {elapsed}초', icon='TIME')
-            draw_text(box, ('장면을 그대로 두면 완료 후 요청한 작업을 실행합니다.'
+            title = ui('Cancelling', '취소하는 중') if _status_kind == 'CANCELLING' else (ui('Waiting for reply', '답변을 기다리는 중') if _request_context else ui('Checking connection', '연결 확인 중'))
+            box.label(text=f'{title} · {elapsed}{ui("s", "초")}', icon='TIME')
+            draw_text(box, (ui('Keep the scene unchanged; requested actions run after the reply arrives.', '장면을 그대로 두면 완료 후 요청한 작업을 실행합니다.')
                             if _request_context and _status_kind != 'CANCELLING' else _status),
                       columns, 3)
         elif _status_kind in ('ERROR', 'CANCELLED'):
             box = layout.box()
             box.alert = _status_kind == 'ERROR'
-            box.label(text='요청을 완료하지 못했습니다' if _status_kind == 'ERROR' else '요청을 취소했습니다',
+            box.label(text=ui('Request could not be completed', '요청을 완료하지 못했습니다') if _status_kind == 'ERROR' else ui('Request cancelled', '요청을 취소했습니다'),
                       icon='ERROR' if _status_kind == 'ERROR' else 'INFO')
             draw_text(box, _status, columns, 4)
             if _status_kind == 'ERROR':
-                draw_text(box, '입력은 남겨두었습니다. 선택 객체와 연결 상태를 확인한 뒤 다시 보내세요.', columns, 4)
+                draw_text(box, ui('Your input was kept. Check the selected objects and connection, then send again.', '입력은 남겨두었습니다. 선택 객체와 연결 상태를 확인한 뒤 다시 보내세요.'), columns, 4)
         elif not _account and _status != '연결 전 · 오프라인 기능 사용 가능':
             draw_text(layout, _status, columns, 4)
 
         layout.separator()
         title = layout.row(align=True)
-        title.label(text='대화', icon='COMMUNITY')
+        title.label(text=ui('Chat', '대화'), icon='COMMUNITY')
         if wm.twin_chat:
             title.label(text=f'{len(wm.twin_chat) // 2} / 10')
             title.operator('twin.new_chat', text='', icon='ADD')
@@ -768,29 +783,29 @@ class TWIN_PT_panel(bpy.types.Panel):
                 bubble = transcript.box()
                 bubble.alert = message.role == 'user'
                 top = bubble.row(align=True)
-                top.label(text='나' if message.role == 'user' else assistant_name(context),
+                top.label(text=ui('You', '나') if message.role == 'user' else assistant_name(context),
                           icon='USER' if message.role == 'user' else 'COMMUNITY')
                 draw_text(bubble, message.body or message.content, columns - 2, 3)
                 if message.result:
                     result = bubble.box()
                     result.alert = message.outcome == 'FAILED'
-                    result.label(text={'APPLIED': '실행 완료', 'NO_ACTION': '장면 변경 없음',
-                                       'FAILED': '실행 실패'}.get(message.outcome, '실행 결과'),
+                    result.label(text={'APPLIED': ui('Completed', '실행 완료'), 'NO_ACTION': ui('No scene changes', '장면 변경 없음'),
+                                       'FAILED': ui('Execution failed', '실행 실패')}.get(message.outcome, ui('Execution result', '실행 결과')),
                                  icon='ERROR' if message.outcome == 'FAILED' else ('CHECKMARK' if message.outcome == 'APPLIED' else 'INFO'))
                     draw_text(result, message.result, columns - 5, 2)
             selected = selected_message(context)
             controls = layout.row(align=True)
-            controls.label(text='선택한 메시지')
-            controls.operator('twin.copy_reply', text='복사', icon='COPYDOWN')
-            controls.operator('twin.view_reply', text='전체 보기', icon='FULLSCREEN_ENTER')
+            controls.label(text=ui('Selected message', '선택한 메시지'))
+            controls.operator('twin.copy_reply', text=ui('Copy', '복사'), icon='COPYDOWN')
+            controls.operator('twin.view_reply', text=ui('View all', '전체 보기'), icon='FULLSCREEN_ENTER')
         else:
             box = layout.box()
-            box.label(text='무엇을 만들고 싶으세요?', icon='OUTLINER_OB_MESH')
-            draw_text(box, '예시를 골라 수정해보세요. 전송 버튼을 누르면 작업을 시작합니다.', columns, 4)
+            box.label(text=ui('What would you like to create?', '무엇을 만들고 싶으세요?'), icon='OUTLINER_OB_MESH')
+            draw_text(box, ui('Choose an example and edit it. Sending starts the work.', '예시를 골라 수정해보세요. 전송 버튼을 누르면 작업을 시작합니다.'), columns, 4)
             examples = [
-                ('큐브 만들기', '원점에 큐브 하나를 만들어줘.', 'MESH_CUBE'),
-                ('선택 객체 이동', '선택한 객체를 X축으로 2만큼 옮겨줘.', 'ORIENTATION_LOCAL'),
-                ('이름 정리하기', '선택한 객체의 이름을 Sample로 바꿔줘.', 'SORTALPHA')]
+                (ui('Create a cube', '큐브 만들기'), ui('Create one cube at the origin.', '원점에 큐브 하나를 만들어줘.'), 'MESH_CUBE'),
+                (ui('Move selected object', '선택 객체 이동'), ui('Move the selected object 2 units on X.', '선택한 객체를 X축으로 2만큼 옮겨줘.'), 'ORIENTATION_LOCAL'),
+                (ui('Rename object', '이름 정리하기'), ui('Rename the selected object to Sample.', '선택한 객체의 이름을 Sample로 바꿔줘.'), 'SORTALPHA')]
             for label, prompt, icon in examples:
                 button = box.operator('twin.seed_prompt', text=label, icon=icon)
                 button.prompt = prompt
@@ -798,36 +813,36 @@ class TWIN_PT_panel(bpy.types.Panel):
         context_box = layout.box()
         row = context_box.row(align=True)
         row.enabled = not _busy
-        row.prop(scene, 'twin_chat_selection', text='선택 객체 함께 보내기')
+        row.prop(scene, 'twin_chat_selection', text=ui('Include selected objects', '선택 객체 함께 보내기'))
         objects = list(context.selected_objects)
         if scene.twin_chat_selection and objects:
-            context_box.label(text=f'{len(objects)}개 선택됨', icon='OBJECT_DATA')
+            context_box.label(text=ui(f'{len(objects)} selected', f'{len(objects)}개 선택됨'), icon='OBJECT_DATA')
             names = ', '.join(obj.name for obj in objects[:3])
             if len(objects) > 3:
-                names += f' 외 {len(objects) - 3}개'
+                names += ui(f' and {len(objects) - 3} more', f' 외 {len(objects) - 3}개')
             draw_text(context_box, names, columns, 2)
         else:
-            draw_text(context_box, '선택 객체 없이 새 오브젝트 생성이나 질문을 할 수 있습니다.', columns, 3)
+            draw_text(context_box, ui('You can create new objects or ask questions without a selection.', '선택 객체 없이 새 오브젝트 생성이나 질문을 할 수 있습니다.'), columns, 3)
 
         composer = layout.column(align=True)
         composer.enabled = not _busy
-        composer.label(text='작업 요청')
+        composer.label(text=ui('Message', '작업 요청'))
         row = composer.row()
         row.scale_y = 1.3
         row.prop(wm, 'twin_prompt', text='')
         actions = layout.row(align=True)
         actions.scale_y = 1.45
         if _busy and _request_context is not None:
-            actions.operator('twin.cancel_chat', text='요청 취소', icon='CANCEL')
+            actions.operator('twin.cancel_chat', text=ui('Cancel', '요청 취소'), icon='CANCEL')
         else:
-            actions.operator('twin.propose', text='보내기', icon='PLAY')
+            actions.operator('twin.propose', text=ui('Send', '보내기'), icon='PLAY')
         if not _account:
-            draw_text(layout, 'AI를 연결하면 요청을 보낼 수 있습니다.', columns, 2)
+            draw_text(layout, ui('Connect an AI provider to send a request.', 'AI를 연결하면 요청을 보낼 수 있습니다.'), columns, 2)
         elif len(wm.twin_chat) >= MAX_HISTORY:
-            draw_text(layout, '대화가 가득 찼습니다. + 버튼으로 새 대화를 시작하세요.', columns, 3)
+            draw_text(layout, ui('This chat is full. Use + to start a new one.', '대화가 가득 찼습니다. + 버튼으로 새 대화를 시작하세요.'), columns, 3)
         footer = layout.column(align=True)
-        footer.label(text='Ctrl+Z로 실행 취소')
-        footer.label(text='대화는 세션에만 보관')
+        footer.label(text=ui('Ctrl+Z to undo completed actions', 'Ctrl+Z로 실행 취소'))
+        footer.label(text=ui('Chat is kept for this session only', '대화는 세션에만 보관'))
 
 
 class TWIN_PT_legacy(bpy.types.Panel):
@@ -905,12 +920,8 @@ CLASSES = (TwinPreferences, TwinChatItem, TWIN_UL_chat, TWIN_OT_connect, TWIN_OT
 def register():
     for cls in CLASSES:
         bpy.utils.register_class(cls)
-    bpy.types.WindowManager.twin_provider = EnumProperty(name="연결 방식", items=[
-        ('CODEX', 'ChatGPT 계정 (Codex)', '로컬 Codex 로그인 사용'),
-        ('CLAUDE_LOGIN', 'Claude 계정 (Claude Code)', 'Claude Code 공식 계정 로그인'),
-        ('OPENAI_API', 'OpenAI API', 'OpenAI API 키로 연결'),
-        ('ANTHROPIC_API', 'Claude API', 'Anthropic API 키로 연결')],
-        default='CODEX', update=provider_changed, options={'SKIP_SAVE'})
+    bpy.types.WindowManager.twin_provider = EnumProperty(name="Provider", items=provider_items,
+        default=0, update=provider_changed, options={'SKIP_SAVE'})
     bpy.types.WindowManager.twin_show_connection = BoolProperty(name="연결 설정", default=False,
         description="AI 제공자, 로그인 방식과 모델 설정을 표시합니다", options={'SKIP_SAVE'})
     bpy.types.WindowManager.twin_api_key = StringProperty(name="API 키", subtype='PASSWORD',
