@@ -584,9 +584,19 @@ class TWIN_OT_new_chat(bpy.types.Operator):
         global _status, _status_kind
         context.window_manager.twin_chat.clear()
         context.window_manager.twin_prompt = ""
+        context.window_manager.twin_show_welcome = True
         _status = "새 대화입니다. 원하는 작업을 적어주세요."
         _status_kind = 'IDLE'
         return {"FINISHED"}
+
+
+class TWIN_OT_dismiss_welcome(bpy.types.Operator):
+    bl_idname = "twin.dismiss_welcome"
+    bl_label = "Dismiss welcome"
+
+    def execute(self, context):
+        context.window_manager.twin_show_welcome = False
+        return {'FINISHED'}
 
 
 class TWIN_OT_seed_prompt(bpy.types.Operator):
@@ -861,16 +871,20 @@ class TWIN_PT_panel(bpy.types.Panel):
             controls.operator('twin.copy_reply', text=ui('Copy', '복사'), icon='COPYDOWN')
             controls.operator('twin.view_reply', text=ui('View all', '전체 보기'), icon='FULLSCREEN_ENTER')
         else:
-            box = layout.box()
-            box.label(text=ui('What would you like to create?', '무엇을 만들고 싶으세요?'), icon='OUTLINER_OB_MESH')
-            draw_text(box, ui('Choose an example and edit it. Sending starts the work.', '예시를 골라 수정해보세요. 전송 버튼을 누르면 작업을 시작합니다.'), columns, 4)
-            examples = [
-                (ui('Create a cube', '큐브 만들기'), ui('Create one cube at the origin.', '원점에 큐브 하나를 만들어줘.'), 'MESH_CUBE'),
-                (ui('Move selected object', '선택 객체 이동'), ui('Move the selected object 2 units on X.', '선택한 객체를 X축으로 2만큼 옮겨줘.'), 'ORIENTATION_LOCAL'),
-                (ui('Rename object', '이름 정리하기'), ui('Rename the selected object to Sample.', '선택한 객체의 이름을 Sample로 바꿔줘.'), 'SORTALPHA')]
-            for label, prompt, icon in examples:
-                button = box.operator('twin.seed_prompt', text=label, icon=icon)
-                button.prompt = prompt
+            title.operator('twin.new_chat', text='', icon='ADD')
+            if wm.twin_show_welcome:
+                box = layout.box()
+                top = box.row(align=True)
+                top.label(text=ui('What would you like to create?', '무엇을 만들고 싶으세요?'), icon='OUTLINER_OB_MESH')
+                top.operator('twin.dismiss_welcome', text='', icon='X')
+                draw_text(box, ui('Choose an example and edit it. Sending starts the work.', '예시를 골라 수정해보세요. 전송 버튼을 누르면 작업을 시작합니다.'), columns, 4)
+                examples = [
+                    (ui('Create a cube', '큐브 만들기'), ui('Create one cube at the origin.', '원점에 큐브 하나를 만들어줘.'), 'MESH_CUBE'),
+                    (ui('Move selected object', '선택 객체 이동'), ui('Move the selected object 2 units on X.', '선택한 객체를 X축으로 2만큼 옮겨줘.'), 'ORIENTATION_LOCAL'),
+                    (ui('Rename object', '이름 정리하기'), ui('Rename the selected object to Sample.', '선택한 객체의 이름을 Sample로 바꿔줘.'), 'SORTALPHA')]
+                for label, prompt, icon in examples:
+                    button = box.operator('twin.seed_prompt', text=label, icon=icon)
+                    button.prompt = prompt
 
         context_box = layout.box()
         row = context_box.row(align=True)
@@ -974,7 +988,7 @@ def on_load(_):
 
 
 CLASSES = (TwinPreferences, TwinChatItem, TWIN_UL_chat, TWIN_OT_connect, TWIN_OT_login,
-           TWIN_OT_disconnect, TWIN_OT_propose, TWIN_OT_cancel_chat, TWIN_OT_new_chat,
+           TWIN_OT_disconnect, TWIN_OT_propose, TWIN_OT_cancel_chat, TWIN_OT_new_chat, TWIN_OT_dismiss_welcome,
            TWIN_OT_execute_chat, TWIN_OT_seed_prompt, TWIN_OT_copy_reply, TWIN_OT_view_reply,
            TWIN_OT_open_provider_docs, TWIN_PT_panel)
 
@@ -986,6 +1000,7 @@ def register():
         default=0, update=provider_changed, options={'SKIP_SAVE'})
     bpy.types.WindowManager.twin_show_connection = BoolProperty(name="연결 설정", default=False,
         description="AI 제공자, 로그인 방식과 모델 설정을 표시합니다", options={'SKIP_SAVE'})
+    bpy.types.WindowManager.twin_show_welcome = BoolProperty(name="Welcome", default=True, options={'SKIP_SAVE'})
     bpy.types.WindowManager.twin_api_key = StringProperty(name="API 키", subtype='PASSWORD',
                                                         options={'SKIP_SAVE'})
     bpy.types.Scene.twin_model = EnumProperty(name="모델", items=model_items)
@@ -1006,7 +1021,7 @@ def unregister():
     for name in ("twin_model", "twin_chat_selection"):
         if hasattr(bpy.types.Scene, name):
             delattr(bpy.types.Scene, name)
-    for name in ('twin_chat', 'twin_chat_index', 'twin_prompt', 'twin_provider', 'twin_api_key', 'twin_show_connection'):
+    for name in ('twin_chat', 'twin_chat_index', 'twin_prompt', 'twin_provider', 'twin_api_key', 'twin_show_connection', 'twin_show_welcome'):
         if hasattr(bpy.types.WindowManager, name):
             delattr(bpy.types.WindowManager, name)
     for cls in reversed(CLASSES):
