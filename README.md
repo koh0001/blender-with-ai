@@ -16,7 +16,7 @@ The screenshot shows a synthetic demo scene. The add-on keeps the current select
 - Temporary Object Mode switching from sculpt/paint modes, with mode restoration
 - Strict validation, stale-scene checks, rollback, cancellation, and Blender Undo
 - Windows and macOS support; no arbitrary model-generated Python or shell execution
-- Interface language follows Blender: Korean for Korean UI, English for other locales
+- Interface language follows Blender: Korean, Japanese, and Simplified Chinese are localized; other locales use English
 
 ## Quick start
 

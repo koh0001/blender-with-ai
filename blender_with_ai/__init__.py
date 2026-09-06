@@ -35,10 +35,72 @@ _status_kind = "IDLE"
 _busy_started = 0.0
 
 
+_UI_TRANSLATIONS = {
+    'Codex executable': ('Codex 実行ファイル', 'Codex 可执行文件'),
+    'Claude executable': ('Claude 実行ファイル', 'Claude 可执行文件'),
+    'Leave empty to search PATH and default install locations.': ('空欄の場合は PATH と標準のインストール場所を検索します。', '留空时会在 PATH 和默认安装位置中查找。'),
+    'API keys and login tokens are not stored by this add-on.': ('API キーとログイントークンはこのアドオンに保存されません。', '此插件不会保存 API 密钥或登录令牌。'),
+    'ChatGPT account (Codex)': ('ChatGPT アカウント (Codex)', 'ChatGPT 账户 (Codex)'),
+    'Claude account (Claude Code)': ('Claude アカウント (Claude Code)', 'Claude 账户 (Claude Code)'),
+    'Use a local Codex login': ('ローカルの Codex ログインを使用', '使用本地 Codex 登录'),
+    'Use an official Claude Code account login': ('公式 Claude Code アカウントログインを使用', '使用官方 Claude Code 账户登录'),
+    'Connect with an OpenAI API key': ('OpenAI API キーで接続', '使用 OpenAI API 密钥连接'),
+    'Connect with an Anthropic API key': ('Anthropic API キーで接続', '使用 Anthropic API 密钥连接'),
+    ' · Connected': (' · 接続済み', ' · 已连接'),
+    ' · Not connected': (' · 未接続', ' · 未连接'),
+    'AI connection': ('AI 接続', 'AI 连接'),
+    'API usage is billed by the provider. The key is used only for this session.': ('API の利用料金は提供元から請求されます。キーはこのセッションでのみ使用されます。', 'API 使用费由服务商收取。密钥仅用于当前会话。'),
+    'Connect an existing CLI account or start the official sign-in flow.': ('既存の CLI アカウントを接続するか、公式ログインを開始してください。', '连接现有 CLI 账户或开始官方登录流程。'),
+    'Codex CLI was not found.': ('Codex CLI が見つかりません。', '未找到 Codex CLI。'),
+    'Claude Code CLI was not found.': ('Claude Code CLI が見つかりません。', '未找到 Claude Code CLI。'),
+    'Official installation guide': ('公式インストールガイド', '官方安装指南'),
+    'Install it, restart Blender, then check the connection.': ('インストール後に Blender を再起動し、接続を確認してください。', '安装后重启 Blender，再检查连接。'),
+    'API key providers work without a CLI installation.': ('API キー方式は CLI をインストールせずに使用できます。', 'API 密钥方式无需安装 CLI。'),
+    'Check connection': ('接続を確認', '检查连接'),
+    'Sign in': ('ログイン', '登录'),
+    'Disconnect': ('接続を切断', '断开连接'),
+    'Model': ('モデル', '模型'),
+    'Cancelling': ('キャンセル中', '正在取消'),
+    'Waiting for reply': ('回答を待機中', '正在等待回复'),
+    'Checking connection': ('接続を確認中', '正在检查连接'),
+    'Request could not be completed': ('リクエストを完了できませんでした', '无法完成请求'),
+    'Request cancelled': ('リクエストをキャンセルしました', '请求已取消'),
+    'Chat': ('チャット', '聊天'),
+    'You': ('あなた', '你'),
+    'Completed': ('実行完了', '执行完成'),
+    'No scene changes': ('シーン変更なし', '场景没有变化'),
+    'Execution failed': ('実行に失敗', '执行失败'),
+    'Execution result': ('実行結果', '执行结果'),
+    'Selected message': ('選択したメッセージ', '选中的消息'),
+    'Copy': ('コピー', '复制'),
+    'View all': ('すべて表示', '查看全部'),
+    'What would you like to create?': ('何を作りたいですか？', '你想创建什么？'),
+    'Create a cube': ('キューブを作成', '创建立方体'),
+    'Move selected object': ('選択オブジェクトを移動', '移动选中的对象'),
+    'Rename object': ('オブジェクト名を変更', '重命名对象'),
+    'Include selected objects': ('選択オブジェクトを含める', '包含选中的对象'),
+    'Message': ('メッセージ', '消息'),
+    'Cancel': ('キャンセル', '取消'),
+    'Send': ('送信', '发送'),
+    'Connect an AI provider to send a request.': ('AI 提供元に接続するとリクエストを送信できます。', '连接 AI 服务商后即可发送请求。'),
+    'Ctrl+Z to undo completed actions': ('Ctrl+Z で実行を取り消す', '使用 Ctrl+Z 撤销已执行的操作'),
+    'Chat is kept for this session only': ('チャットはこのセッションでのみ保持されます', '聊天记录仅保留在当前会话中'),
+}
+
+
 def ui(english, korean):
-    """Use Korean only when Blender's interface language is Korean."""
+    """Follow Blender's UI language, using English when no translation exists."""
     locale = getattr(bpy.app.translations, 'locale', '')
-    return korean if locale.lower().startswith('ko') else english
+    locale = locale.lower()
+    if locale.startswith('ko'):
+        return korean
+    translated = _UI_TRANSLATIONS.get(english)
+    if translated:
+        if locale.startswith('ja'):
+            return translated[0]
+        if locale.startswith('zh'):
+            return translated[1]
+    return english
 
 
 def provider_items(_self, _context):
