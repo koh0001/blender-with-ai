@@ -10,4 +10,4 @@ license = ["SPDX:GPL-3.0-or-later"]
 tags = ["Object"]
 [permissions]
 network = "Send chat and selected object transforms to an AI provider"
-files = "Run local AI clients and read or export optional metadata files"
+files = "Run local AI clients and control basic Blender scene objects"

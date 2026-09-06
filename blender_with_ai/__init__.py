@@ -414,8 +414,6 @@ class TWIN_OT_propose(bpy.types.Operator):
             scene = context.scene
             if len(bpy.context.window_manager.twin_chat) >= MAX_HISTORY:
                 raise ValueError("대화는 최대 10회입니다. 새 대화를 시작하세요")
-            if context.mode != 'OBJECT':
-                raise ValueError("오브젝트 모드에서 요청하세요")
             if scene.twin_chat_selection:
                 records, snapshots = snapshot(context)
             else:
@@ -665,7 +663,8 @@ class TWIN_PT_panel(bpy.types.Panel):
     bl_idname = "TWIN_PT_panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "AI"
+    # Keep the legacy metadata workflow out of the primary AI chat tab.
+    bl_category = "Metadata"
     def draw(self, context):
         layout = self.layout
         wm, scene = context.window_manager, context.scene
@@ -866,9 +865,10 @@ def on_load(_):
         bpy.app.timers.register(poll_events, first_interval=0.4, persistent=True)
 
 
-CLASSES = (TwinPreferences, TwinPreviewItem, TwinChatItem, TWIN_UL_chat, TWIN_UL_preview, TWIN_OT_connect, TWIN_OT_login,
-           TWIN_OT_disconnect, TWIN_OT_init_ids, TWIN_OT_rules, TWIN_OT_propose, TWIN_OT_cancel_chat, TWIN_OT_new_chat, TWIN_OT_execute_chat, TWIN_OT_seed_prompt, TWIN_OT_copy_reply, TWIN_OT_view_reply, TWIN_OT_apply,
-           TWIN_OT_discard, TWIN_OT_import_csv, TWIN_OT_export, TWIN_PT_panel, TWIN_PT_legacy)
+CLASSES = (TwinPreferences, TwinChatItem, TWIN_UL_chat, TWIN_OT_connect, TWIN_OT_login,
+           TWIN_OT_disconnect, TWIN_OT_propose, TWIN_OT_cancel_chat, TWIN_OT_new_chat,
+           TWIN_OT_execute_chat, TWIN_OT_seed_prompt, TWIN_OT_copy_reply, TWIN_OT_view_reply,
+           TWIN_PT_panel)
 
 
 def register():
@@ -889,9 +889,6 @@ def register():
     bpy.types.WindowManager.twin_chat = CollectionProperty(type=TwinChatItem, options={'SKIP_SAVE'})
     bpy.types.WindowManager.twin_chat_index = IntProperty(default=0, options={'SKIP_SAVE'})
     bpy.types.Scene.twin_chat_selection = BoolProperty(name="선택 객체 포함", default=True)
-    bpy.types.Scene.twin_preview = CollectionProperty(type=TwinPreviewItem)
-    bpy.types.Scene.twin_preview_index = IntProperty(default=0)
-    bpy.types.Scene.twin_preview_source = StringProperty()
     bpy.app.handlers.load_pre.append(on_load)
     bpy.app.timers.register(poll_events, first_interval=0.4, persistent=True)
 
@@ -902,7 +899,7 @@ def unregister():
         bpy.app.timers.unregister(poll_events)
     if on_load in bpy.app.handlers.load_pre:
         bpy.app.handlers.load_pre.remove(on_load)
-    for name in ("twin_model", "twin_chat_selection", "twin_preview", "twin_preview_index", "twin_preview_source"):
+    for name in ("twin_model", "twin_chat_selection"):
         if hasattr(bpy.types.Scene, name):
             delattr(bpy.types.Scene, name)
     for name in ('twin_chat', 'twin_chat_index', 'twin_prompt', 'twin_provider', 'twin_api_key', 'twin_show_connection'):

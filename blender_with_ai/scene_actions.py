@@ -27,8 +27,15 @@ def apply_actions(context, commands, snapshots):
                                     [{"object_name": name} for name in snapshots])
     if not commands:
         return "장면 변경 없음."
-    if context.mode != "OBJECT":
-        raise ValueError("오브젝트 모드에서 실행해 주세요.")
+    previous_mode = context.mode
+    # Object-level commands are safe from sculpt/paint modes. Edit mode is
+    # deliberately left alone because switching it can disrupt mesh edits.
+    restorable_modes = {"SCULPT", "PAINT_VERTEX", "PAINT_WEIGHT", "PAINT_TEXTURE"}
+    if previous_mode != "OBJECT":
+        if previous_mode not in restorable_modes:
+            raise ValueError("현재 모드에서는 실행할 수 없습니다. 오브젝트 모드로 전환해 주세요.")
+        if context.object is None or bpy.ops.object.mode_set(mode="OBJECT") != {"FINISHED"}:
+            raise ValueError("오브젝트 모드로 전환하지 못했습니다.")
     for name, saved in snapshots.items():
         obj = saved["object"]
         try:
@@ -145,5 +152,15 @@ def apply_actions(context, commands, snapshots):
             obj.select_set(True)
         context.view_layer.objects.active = active
         context.view_layer.update()
+        if previous_mode != "OBJECT" and context.object is not None:
+            try:
+                bpy.ops.object.mode_set(mode=previous_mode)
+            except RuntimeError:
+                pass
         raise
+    if previous_mode != "OBJECT" and context.object is not None:
+        try:
+            bpy.ops.object.mode_set(mode=previous_mode)
+        except RuntimeError:
+            pass
     return (f"장면 작업 {len(commands)}개 실행 완료.\n" + "\n".join(results))[:2400]
