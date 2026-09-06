@@ -760,26 +760,29 @@ class TWIN_PT_panel(bpy.types.Panel):
         if wm.twin_chat:
             title.label(text=f'{len(wm.twin_chat) // 2} / 10')
             title.operator('twin.new_chat', text='', icon='ADD')
-            # Keep several recent turns visible so the panel reads like a
-            # conversation instead of a single inspector row.
-            layout.template_list('TWIN_UL_chat', '', wm, 'twin_chat', wm, 'twin_chat_index', rows=5, maxrows=5)
-            item = selected_message(context)
-            box = layout.box()
-            top = box.row(align=True)
-            top.label(text='나의 요청' if item.role == 'user' else assistant_name(context) + ' 답변',
-                      icon='USER' if item.role == 'user' else 'COMMUNITY')
-            top.operator('twin.copy_reply', text='', icon='COPYDOWN')
-            top.operator('twin.view_reply', text='', icon='FULLSCREEN_ENTER')
-            if item.result:
-                result = box.box()
-                result.alert = item.outcome == 'FAILED'
-                result.label(text={'APPLIED': '실제 실행 결과', 'NO_ACTION': '장면 변경 없음',
-                                   'FAILED': '실행 실패'}.get(item.outcome, '실행 결과'),
-                             icon='ERROR' if item.outcome == 'FAILED' else ('CHECKMARK' if item.outcome == 'APPLIED' else 'INFO'))
-                draw_text(result, item.result, columns - 4, 4)
-            truncated = draw_text(box, item.body or item.content, columns - 2, 6)
-            if truncated:
-                box.operator('twin.view_reply', text='전체 메시지 읽기', icon='TEXT')
+            # Render a compact chronological transcript, closer to a desktop
+            # chat than an inspector list. The selected message remains the
+            # target for copy/full-view actions below the transcript.
+            transcript = layout.column(align=True)
+            for message in list(wm.twin_chat)[-8:]:
+                bubble = transcript.box()
+                bubble.alert = message.role == 'user'
+                top = bubble.row(align=True)
+                top.label(text='나' if message.role == 'user' else assistant_name(context),
+                          icon='USER' if message.role == 'user' else 'COMMUNITY')
+                draw_text(bubble, message.body or message.content, columns - 2, 3)
+                if message.result:
+                    result = bubble.box()
+                    result.alert = message.outcome == 'FAILED'
+                    result.label(text={'APPLIED': '실행 완료', 'NO_ACTION': '장면 변경 없음',
+                                       'FAILED': '실행 실패'}.get(message.outcome, '실행 결과'),
+                                 icon='ERROR' if message.outcome == 'FAILED' else ('CHECKMARK' if message.outcome == 'APPLIED' else 'INFO'))
+                    draw_text(result, message.result, columns - 5, 2)
+            selected = selected_message(context)
+            controls = layout.row(align=True)
+            controls.label(text='선택한 메시지')
+            controls.operator('twin.copy_reply', text='복사', icon='COPYDOWN')
+            controls.operator('twin.view_reply', text='전체 보기', icon='FULLSCREEN_ENTER')
         else:
             box = layout.box()
             box.label(text='무엇을 만들고 싶으세요?', icon='OUTLINER_OB_MESH')
