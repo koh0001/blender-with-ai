@@ -664,7 +664,7 @@ class TWIN_PT_panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     # Keep the legacy metadata workflow out of the primary AI chat tab.
-    bl_category = "Metadata"
+    bl_category = "AI"
     def draw(self, context):
         layout = self.layout
         wm, scene = context.window_manager, context.scene
@@ -679,6 +679,8 @@ class TWIN_PT_panel(bpy.types.Panel):
         if not _account or wm.twin_show_connection:
             box = layout.box()
             box.label(text="AI 연결", icon='WORLD')
+            if _account:
+                box.label(text=f"{assistant_name(context)} 로그인됨 · 연결 확인 완료", icon='CHECKMARK')
             controls = box.column()
             controls.enabled = not _busy
             controls.prop(wm, 'twin_provider', text='')
@@ -804,7 +806,7 @@ class TWIN_PT_legacy(bpy.types.Panel):
     bl_idname = "TWIN_PT_legacy"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "AI"
+    bl_category = "Metadata"
     bl_options = {'DEFAULT_CLOSED'}
     def draw(self, context):
         layout = self.layout
