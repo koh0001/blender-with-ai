@@ -7,7 +7,7 @@ Environment: Blender 5.2.1 LTS, Codex CLI 0.153.4, Claude Code 2.1.263.
 - Offline Python tests cover command validation, Codex protocol, Claude CLI transport, OpenAI/Anthropic API contracts, cancellation and Windows launcher layouts.
 - `blender_actions_smoke.py`: all five primitives; move, rotate, scale, rename; stale or locked object rejection; rollback after injected mid-batch failure.
 - `blender_chat_smoke.py`: UI registration, model selection, chat create and follow-up move, actual result history, stale scene/collection rejection, cancellation of a queued result, pure chat, provider switching and cleanup. Designer UI checks also cover seed buttons that do not execute, CJK wrapping, separate execution feedback, complete reply copying through a fake clipboard, failed-input preservation and stale detail viewers.
-- Actual macOS Blender GUI was visually inspected at the default sidebar width: empty state, connected chat, selected-object context and expanded reply. The README screenshot uses a synthetic scene and demo conversation.
+- Actual macOS Blender GUI was visually inspected at the default sidebar width: empty state, connected chat, selected-object context and expanded reply. The README screenshot uses a synthetic scene and demo conversation. The final read-only reply popup opened successfully; its page-arrow clicks have not been manually verified.
 - Uncompressed saved `.blend` was inspected: distinctive chat, prompt and API-key test values were absent. These values use WindowManager session state, not Scene custom properties.
 - Separate factory-startup GUI process: a timer-triggered chat operator created an object; Blender Undo removed it.
 - `blender_smoke.py`: legacy metadata regression checks remain passing.
@@ -35,7 +35,7 @@ OpenAI Responses and Anthropic Messages adapters were checked against official d
 
 ## Windows and compatibility
 
-GitHub Actions run `34032629113` passed all four jobs on commit `93d81eb`: Windows, macOS and Linux Python tests, plus real Windows Blender 4.2.0 scene/chat integration and ZIP installation/activation/removal. Windows ran all 39 unit tests; macOS and Linux passed 38 with the one Windows process test excluded.
+[GitHub Actions run `34033312999`](https://github.com/koh0001/blender-with-ai/actions/runs/34033312999) passed all four jobs on commit `f89f15d` (including the branding and designer UI changes): Windows, macOS and Linux Python tests, plus real Windows Blender 4.2.0 scene/chat integration and ZIP installation/activation/removal. Windows ran all 39 unit tests; macOS and Linux passed 38 with the one Windows process test excluded.
 
 The initial Windows run exposed locale-dependent encoding in the fake protocol server and a broken-pipe cleanup error. Both were fixed and regression-tested before the successful run.
 
