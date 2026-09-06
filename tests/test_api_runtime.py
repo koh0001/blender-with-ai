@@ -11,7 +11,7 @@ from unittest import mock
 from urllib.error import HTTPError
 
 package = types.ModuleType('twin_api_tests')
-package.__path__ = [str(Path(__file__).parents[1] / 'twin_assistant')]
+package.__path__ = [str(Path(__file__).parents[1] / 'blender_with_ai')]
 sys.modules['twin_api_tests'] = package
 api = importlib.import_module('twin_api_tests.api_runtime')
 

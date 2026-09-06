@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from twin_assistant import scene_actions
+from blender_with_ai import scene_actions
 
 
 def command(op, target="", vector=(0, 0, 0), name="", primitive="CUBE"):

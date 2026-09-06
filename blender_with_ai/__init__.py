@@ -18,7 +18,7 @@ from .api_runtime import APIRuntime
 from .claude_runtime import ClaudeRuntime, discover_claude
 from .launcher import discover_candidates
 
-bl_info = {"name": "Blender GPT Assistant", "author": "Twin Metadata Assistant contributors",
+bl_info = {"name": "Blender with AI", "author": "Blender with AI contributors",
            "version": (0, 1, 0), "blender": (4, 2, 0), "category": "Object"}
 KEY = "twin_meta"
 _runtime = None
@@ -493,11 +493,11 @@ class TWIN_OT_export(bpy.types.Operator, ExportHelper):
 
 
 class TWIN_PT_panel(bpy.types.Panel):
-    bl_label = "Blender GPT Assistant"
+    bl_label = "Blender with AI"
     bl_idname = "TWIN_PT_panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "GPT"
+    bl_category = "AI"
     def draw(self, context):
         layout = self.layout
         scene = context.scene
@@ -548,7 +548,7 @@ class TWIN_PT_legacy(bpy.types.Panel):
     bl_idname = "TWIN_PT_legacy"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "GPT"
+    bl_category = "AI"
     bl_options = {'DEFAULT_CLOSED'}
     def draw(self, context):
         layout = self.layout

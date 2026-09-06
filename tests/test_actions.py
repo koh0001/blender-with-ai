@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-spec = importlib.util.spec_from_file_location("actions", Path(__file__).resolve().parents[1] / "twin_assistant/actions.py")
+spec = importlib.util.spec_from_file_location("actions", Path(__file__).resolve().parents[1] / "blender_with_ai/actions.py")
 actions = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(actions)
 

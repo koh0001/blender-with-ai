@@ -1,4 +1,4 @@
-# Validation — 2026-09-06
+# Blender with AI — Validation — 2026-09-06
 
 ## Verified on macOS
 
@@ -34,7 +34,9 @@ OpenAI Responses and Anthropic Messages adapters were checked against official d
 
 ## Windows and compatibility
 
-GitHub Actions runs Python tests on Windows, macOS and Linux. A separate Windows job downloads official Blender 4.2.0 and runs scene/chat integration and ZIP validation. Record the actual workflow result before claiming a Windows pass.
+GitHub Actions run `34032629113` passed all four jobs on commit `93d81eb`: Windows, macOS and Linux Python tests, plus real Windows Blender 4.2.0 scene/chat integration and ZIP installation/activation/removal. Windows ran all 39 unit tests; macOS and Linux passed 38 with the one Windows process test excluded.
+
+The initial Windows run exposed locale-dependent encoding in the fake protocol server and a broken-pipe cleanup error. Both were fixed and regression-tested before the successful run.
 
 Windows CLI launch avoids npm batch-file quoting by resolving the native Codex executable. Windows process tests include spaces, Korean characters and shell metacharacters in paths/arguments. Claude account mode expects the native Claude Code executable.
 
@@ -43,3 +45,7 @@ Manual Windows GUI layout, Undo and fresh login remain unverified. Blender 4.2 i
 ## Current limits
 
 The command vocabulary covers primitive creation and selected object transforms/rename only. No arbitrary Python, delete, file operations, edit-mode mesh tools, modifiers, materials or animation editing. Maximum 20 commands per response and 200 selected objects. Conversation length is bounded to ten completed exchanges; start a new chat when full. Names are bounded to 63 UTF-8 bytes. Transform locks, constraints and animation can cause an operation to be rejected.
+
+## Branding rename verification
+
+The add-on display name is Blender with AI, the sidebar is AI, the extension ID and package are `blender_with_ai`, and the archive is `blender-with-ai-0.1.0.zip`. After this rename, macOS ran all 39 unit tests (38 passed, one Windows-only test excluded), all three offline Blender smoke scripts, and isolated ZIP validation, installation, activation and removal. Live inference was not repeated for the branding-only change; the earlier account-request evidence above is preserved.

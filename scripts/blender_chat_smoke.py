@@ -7,7 +7,7 @@ import bpy
 
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
-import twin_assistant as addon
+import blender_with_ai as addon
 
 class FakeRuntime:
     def __init__(self):

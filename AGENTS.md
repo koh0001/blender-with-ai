@@ -1,10 +1,10 @@
 # Development guide
 
-This is a Blender add-on for controlling the scene through an AI chat panel. Keep the common add-on independent of company projects. Domain-specific metadata or digital-twin workflows belong in downstream forks or extensions.
+**Blender with AI** is a Blender add-on for controlling the scene through an AI chat panel. Keep the common add-on independent of company projects. Domain-specific metadata or digital-twin workflows belong in downstream forks or extensions.
 
 ## Architecture
 
-- `twin_assistant/__init__.py`: Blender UI, session state, main-thread operators.
+- `blender_with_ai/__init__.py`: Blender UI, session state, main-thread operators.
 - `actions.py`: pure Python command schema and strict response validation.
 - `scene_actions.py`: bounded Blender operations, freshness checks, rollback.
 - Runtime modules: provider transport only; never import `bpy` or mutate scenes.

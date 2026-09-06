@@ -1,9 +1,9 @@
 schema_version = "1.0.0"
-id = "twin_assistant"
+id = "blender_with_ai"
 version = "0.1.0"
-name = "Blender GPT Assistant"
+name = "Blender with AI"
 tagline = "Control Blender objects through GPT and Claude chat"
-maintainer = "Twin Metadata Assistant contributors"
+maintainer = "Blender with AI contributors"
 type = "add-on"
 blender_version_min = "4.2.0"
 license = ["SPDX:GPL-3.0-or-later"]

@@ -1,4 +1,4 @@
-# Blender GPT Assistant
+# Blender with AI
 
 Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3.0-or-later 오픈소스 애드온입니다. **채팅 → Blender 작업 실행 → 결과 확인**이 첫 개발 목표입니다.
 
@@ -6,7 +6,7 @@ Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3
 
 ## 현재 작업 범위
 
-- Blender의 **GPT** 사이드바에서 채팅, 대화 기록, 요청 취소, 새 대화
+- Blender의 **AI** 사이드바에서 채팅, 대화 기록, 요청 취소, 새 대화
 - ChatGPT·Claude 계정 로그인 또는 OpenAI·Anthropic API 키 연결
 - 큐브·구·원기둥·평면·원뿔 생성
 - 선택 객체 이동, 회전, 크기 변경, 이름 변경
@@ -25,9 +25,9 @@ Blender 안에서 GPT 또는 Claude와 대화하고 장면을 조작하는 GPL-3
 ## 설치와 첫 사용
 
 1. Windows 또는 macOS에 Blender 4.2 이상을 준비합니다. 계정 로그인 방식은 Codex CLI 또는 Claude Code도 필요합니다. API 키 방식에는 해당 CLI가 필요하지 않습니다. 검증 환경은 `VALIDATION.md`를 참고하세요.
-2. `python3 scripts/package.py`로 `dist/twin-assistant-0.1.0.zip`을 만듭니다.
+2. `python3 scripts/package.py`로 `dist/blender-with-ai-0.1.0.zip`을 만듭니다.
 3. Blender → Edit → Preferences → Get Extensions → Install from Disk에서 ZIP을 선택합니다.
-4. 3D View에서 `N` 키 → **GPT** 탭을 엽니다.
+4. 3D View에서 `N` 키 → **AI** 탭을 엽니다.
 5. 연결 방식을 선택하고 **연결 확인**을 누릅니다. 계정 방식은 기존 CLI 로그인 세션을 재사용하며, 필요한 경우 **로그인**으로 공식 인증 절차를 시작합니다. API 방식은 키를 입력합니다.
 6. 조회된 모델을 선택하고 요청을 전송합니다. 기존 객체를 수정할 때는 해당 객체를 선택합니다.
 7. 실행 결과를 확인합니다. 작업은 Ctrl+Z로 되돌릴 수 있습니다.
@@ -67,7 +67,7 @@ python3 scripts/package.py
 
 ## 라이선스
 
-Copyright (c) 2026 Blender GPT Assistant contributors.
+Copyright (c) 2026 Blender with AI contributors.
 
 이 프로그램은 **GNU General Public License version 3 또는 그 이후 버전(GPL-3.0-or-later)**에 따라 배포합니다. 전문은 [LICENSE](LICENSE), 이전 프로토타입의 저작권 고지는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)를 확인하세요. 어떠한 보증도 제공하지 않습니다.
 

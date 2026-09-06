@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-spec = importlib.util.spec_from_file_location("launcher", Path(__file__).resolve().parents[1] / "twin_assistant/launcher.py")
+spec = importlib.util.spec_from_file_location("launcher", Path(__file__).resolve().parents[1] / "blender_with_ai/launcher.py")
 launcher = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 

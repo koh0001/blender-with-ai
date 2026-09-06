@@ -4,7 +4,7 @@ import unittest
 
 
 SPEC = importlib.util.spec_from_file_location(
-    "twin_metadata", Path(__file__).resolve().parents[1] / "twin_assistant" / "metadata.py"
+    "twin_metadata", Path(__file__).resolve().parents[1] / "blender_with_ai" / "metadata.py"
 )
 metadata = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(metadata)

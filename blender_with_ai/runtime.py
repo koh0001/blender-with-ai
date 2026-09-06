@@ -152,7 +152,7 @@ class CodexRuntime:
             raise RuntimeError('Connection was closed; reconnect with a new runtime.')
         if self._process and self._process.poll() is None:
             return
-        self._workspace = tempfile.TemporaryDirectory(prefix='blender-twin-codex-')
+        self._workspace = tempfile.TemporaryDirectory(prefix='blender-with-ai-codex-')
         args = [self.codex_path, 'app-server', '--listen', 'stdio://',
                 '-c', 'mcp_servers={}', '-c', 'web_search="disabled"',
                 '-c', 'project_doc_max_bytes=0', '-c', 'notify=[]']
@@ -263,8 +263,8 @@ class CodexRuntime:
     def _connect(self):
         if not self._initialized:
             self.start()
-            self.request('initialize', {'clientInfo': {'name': 'blender_twin_assistant',
-                         'title': 'Blender Twin Assistant', 'version': '0.1.0'}})
+            self.request('initialize', {'clientInfo': {'name': 'blender_with_ai',
+                         'title': 'Blender with AI', 'version': '0.1.0'}})
             self._send({'method': 'initialized', 'params': {}})
             self._initialized = True
         result = self.request('account/read', {'refreshToken': False})

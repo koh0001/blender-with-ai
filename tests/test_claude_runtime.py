@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 package = types.ModuleType('twin_claude_tests')
-package.__path__ = [str(Path(__file__).parents[1] / 'twin_assistant')]
+package.__path__ = [str(Path(__file__).parents[1] / 'blender_with_ai')]
 sys.modules[package.__name__] = package
 claude = importlib.import_module('twin_claude_tests.claude_runtime')
 

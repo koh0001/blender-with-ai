@@ -10,9 +10,9 @@ import types
 from unittest import mock
 
 package = types.ModuleType('twin_runtime_tests')
-package.__path__ = [str(Path(__file__).parents[1] / 'twin_assistant')]
+package.__path__ = [str(Path(__file__).parents[1] / 'blender_with_ai')]
 sys.modules['twin_runtime_tests'] = package
-SPEC = importlib.util.spec_from_file_location('twin_runtime_tests.runtime', Path(__file__).parents[1] / 'twin_assistant/runtime.py')
+SPEC = importlib.util.spec_from_file_location('twin_runtime_tests.runtime', Path(__file__).parents[1] / 'blender_with_ai/runtime.py')
 runtime = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runtime)
 

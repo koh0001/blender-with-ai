@@ -1,6 +1,6 @@
 # Attribution
 
-This project includes the original Twin Metadata Assistant prototype, distributed under the following MIT notice. The combined Blender GPT Assistant is distributed under GPL-3.0-or-later.
+This project includes the original Twin Metadata Assistant prototype, distributed under the following MIT notice. The combined Blender with AI is distributed under GPL-3.0-or-later.
 
 ```text
 MIT License

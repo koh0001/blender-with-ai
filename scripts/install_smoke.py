@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--blender', default='blender')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-archive = root / 'dist/twin-assistant-0.1.0.zip'
+archive = root / 'dist/blender-with-ai-0.1.0.zip'
 if not archive.is_file():
     raise SystemExit('Run python scripts/package.py first.')
 with tempfile.TemporaryDirectory(prefix='blender-addon-install-') as folder:
@@ -31,9 +31,9 @@ with tempfile.TemporaryDirectory(prefix='blender-addon-install-') as folder:
     run('--command', 'extension', 'repo-add', 'smoke_local', '--directory', str(base / 'repo'), '--clear-all')
     run('--command', 'extension', 'install-file', '--repo', 'smoke_local', '--enable', str(archive))
     probe = base / 'probe.py'
-    probe.write_text("import bpy\nassert hasattr(bpy.types.WindowManager, 'twin_provider')\nassert hasattr(bpy.ops.twin, 'propose')\nassert 'bl_ext.smoke_local.twin_assistant' in bpy.context.preferences.addons\nprint('INSTALLED_EXTENSION_ENABLED_OK')\n")
+    probe.write_text("import bpy\nassert hasattr(bpy.types.WindowManager, 'twin_provider')\nassert hasattr(bpy.ops.twin, 'propose')\nassert 'bl_ext.smoke_local.blender_with_ai' in bpy.context.preferences.addons\nprint('INSTALLED_EXTENSION_ENABLED_OK')\n")
     run('--python-exit-code', '1', '--python', str(probe))
-    run('--command', 'extension', 'remove', 'smoke_local.twin_assistant')
-    if (base / 'repo/twin_assistant').exists():
+    run('--command', 'extension', 'remove', 'smoke_local.blender_with_ai')
+    if (base / 'repo/blender_with_ai').exists():
         raise RuntimeError('Installed extension was not removed')
 print('INSTALL_SMOKE_OK')

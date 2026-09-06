@@ -10,9 +10,9 @@ from pathlib import Path
 import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from twin_assistant.runtime import CodexRuntime
-from twin_assistant.claude_runtime import ClaudeRuntime
-from twin_assistant.scene_actions import snapshot, apply_actions
+from blender_with_ai.runtime import CodexRuntime
+from blender_with_ai.claude_runtime import ClaudeRuntime
+from blender_with_ai.scene_actions import snapshot, apply_actions
 
 
 def collect(client, worker):
